@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/shared/ui/Button/Button";
 import { useLandingAuth } from "@/shared/hooks/useLandingAuth";
+import { FeaturesSection } from "@/features/landing/components/FeaturesSection";
 
 export function LandingPage() {
   const {
@@ -16,7 +17,7 @@ export function LandingPage() {
   } = useLandingAuth();
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 pt-24 pb-12">
       <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         
         {/* LEFT COLUMN: Role Toggle & Dynamic Forms */}
@@ -32,7 +33,7 @@ export function LandingPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Client Portal
+              Join Project
             </button>
             <button
               onClick={() => setActiveTab("manager")}
@@ -42,15 +43,23 @@ export function LandingPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Manager Dashboard
+              Account Login
             </button>
           </div>
 
-          {/* Dynamic Content based on Active Tab */}
-          {activeTab === "client" ? (
-            <div className="flex flex-col gap-4 animate-in fade-in-50 duration-300">
+          {/* Dynamic Content Container with True Slow Crossfade */}
+          <div className="relative w-full">
+            
+            {/* Client View Panel */}
+            <div 
+              className={`flex flex-col gap-4 transition-all duration-1000 ease-in-out ${
+                activeTab === "client" 
+                  ? "opacity-100 translate-y-0 relative" 
+                  : "opacity-0 translate-y-4 absolute inset-0 pointer-events-none"
+              }`}
+            >
               <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
-                Report issues & track progress <span className="text-primary">effortlessly.</span>
+                Be part of a team & <span className="text-[#800020]">track</span> progress <span className="text-primary">effortlessly.</span>
               </h1>
               <p className="text-muted-foreground text-lg">
                 Submit tasks, monitor live updates, and collaborate directly with project managers through your secure client invitation access.
@@ -82,10 +91,17 @@ export function LandingPage() {
                 </div>
               </form>
             </div>
-          ) : (
-            <div className="flex flex-col gap-4 animate-in fade-in-50 duration-300">
+
+            {/* Manager View Panel */}
+            <div 
+              className={`flex flex-col gap-4 transition-all duration-1000 ease-in-out ${
+                activeTab === "manager" 
+                  ? "opacity-100 translate-y-0 relative" 
+                  : "opacity-0 translate-y-4 absolute inset-0 pointer-events-none"
+              }`}
+            >
               <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
-                Command center for <span className="text-primary">project leaders.</span>
+                Lead a team & <span className="text-[#800020]">manage</span> your<span className="text-primary"> project group.</span>
               </h1>
               <p className="text-muted-foreground text-lg">
                 Triage incoming reports, assign workflows, and manage team output seamlessly from a single unified dashboard.
@@ -93,7 +109,7 @@ export function LandingPage() {
 
               {/* Manager Control Center Box */}
               <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-4 mt-2 shadow-sm">
-                <h3 className="font-semibold text-base">Manager Control Center</h3>
+                <h3 className="font-semibold text-base">Account Control Center</h3>
                 <p className="text-sm text-muted-foreground">
                   New to Zenith? Create your administrative account to start organizing your team's project pipeline.
                 </p>
@@ -104,7 +120,7 @@ export function LandingPage() {
                     size="lg" 
                     className="w-full"
                   >
-                    Create Manager Account
+                    Create Account
                   </Button>
                   <Button 
                     onClick={() => handleManagerAction(false)} 
@@ -117,8 +133,8 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
-          )}
 
+          </div>
         </div>
 
         {/* RIGHT COLUMN: Video Preview Placeholder */}
@@ -136,6 +152,9 @@ export function LandingPage() {
         </div>
 
       </div>
+
+      {/* FEATURES SECTION (Smooth scroll target) */}
+      <FeaturesSection />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+// this is the useState hook for the client, manager switch
+
 export function useLandingAuth() {
   const [activeTab, setActiveTab] = useState("client"); // "client" or "manager"
   const [clientEmail, setClientEmail] = useState("");
