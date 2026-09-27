@@ -21,3 +21,7 @@ npx shadcn@latest
 // add shadcn button
 
 npx shadcn@latest add button
+
+// add shadcn sheet for menu button and slide sidebar
+
+npx shadcn@latest add sheet

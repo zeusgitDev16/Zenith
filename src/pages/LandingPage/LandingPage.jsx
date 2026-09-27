@@ -1,8 +1,8 @@
-
 import React from "react";
 import { Button } from "@/shared/ui/Button/Button";
 import { useLandingAuth } from "@/shared/hooks/useLandingAuth";
 import { FeaturesSection } from "@/features/landing/components/FeaturesSection";
+import { landingData } from "@/data/content/landing.data";
 
 export function LandingPage() {
   const {
@@ -33,7 +33,7 @@ export function LandingPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Join Project
+              {landingData.tabs.client}
             </button>
             <button
               onClick={() => setActiveTab("manager")}
@@ -43,7 +43,7 @@ export function LandingPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Account Login
+              {landingData.tabs.manager}
             </button>
           </div>
 
@@ -59,21 +59,23 @@ export function LandingPage() {
               }`}
             >
               <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
-                Be part of a team & <span className="text-[#800020]">track</span> progress <span className="text-primary">effortlessly.</span>
+                {landingData.client.headingParts.part1}
+                <span className="text-[#800020]">{landingData.client.headingParts.highlight}</span>
+                {landingData.client.headingParts.part2}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Submit tasks, monitor live updates, and collaborate directly with project managers through your secure client invitation access.
+                {landingData.client.description}
               </p>
 
               {/* Client Authentication Box */}
               <form onSubmit={handleClientSignIn} className="bg-card border border-border rounded-xl p-6 flex flex-col gap-4 mt-2 shadow-sm">
-                <h3 className="font-semibold text-base">Client Access Portal</h3>
+                <h3 className="font-semibold text-base">{landingData.client.portalTitle}</h3>
                 <div className="flex flex-col gap-3">
                   <input
                     type="email"
                     value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
-                    placeholder="Enter your Gmail address"
+                    placeholder={landingData.client.emailPlaceholder}
                     required
                     className="h-10 px-3 rounded-lg bg-background border border-input text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                   />
@@ -81,12 +83,12 @@ export function LandingPage() {
                     type="text"
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value)}
-                    placeholder="Enter invitation code"
+                    placeholder={landingData.client.invitePlaceholder}
                     required
                     className="h-10 px-3 rounded-lg bg-background border border-input text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                   />
                   <Button type="submit" variant="default" size="lg" className="w-full mt-1">
-                    Sign In to Portal
+                    {landingData.client.submitButtonText}
                   </Button>
                 </div>
               </form>
@@ -101,17 +103,19 @@ export function LandingPage() {
               }`}
             >
               <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
-                Lead a team & <span className="text-[#800020]">manage</span> your<span className="text-primary"> project group.</span>
+                {landingData.manager.headingParts.part1}
+                <span className="text-[#800020]">{landingData.manager.headingParts.highlight}</span>
+                {landingData.manager.headingParts.part2}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Triage incoming reports, assign workflows, and manage team output seamlessly from a single unified dashboard.
+                {landingData.manager.description}
               </p>
 
               {/* Manager Control Center Box */}
               <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-4 mt-2 shadow-sm">
-                <h3 className="font-semibold text-base">Account Control Center</h3>
+                <h3 className="font-semibold text-base">{landingData.manager.controlTitle}</h3>
                 <p className="text-sm text-muted-foreground">
-                  New to Zenith? Create your administrative account to start organizing your team's project pipeline.
+                  {landingData.manager.controlDescription}
                 </p>
                 <div className="flex flex-col gap-3 mt-1">
                   <Button 
@@ -120,7 +124,7 @@ export function LandingPage() {
                     size="lg" 
                     className="w-full"
                   >
-                    Create Account
+                    {landingData.manager.createButtonText}
                   </Button>
                   <Button 
                     onClick={() => handleManagerAction(false)} 
@@ -128,7 +132,7 @@ export function LandingPage() {
                     size="lg" 
                     className="w-full"
                   >
-                    Sign In to Existing Account
+                    {landingData.manager.signInButtonText}
                   </Button>
                 </div>
               </div>
@@ -144,9 +148,9 @@ export function LandingPage() {
             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
               ▶
             </div>
-            <h4 className="font-semibold text-foreground text-lg">Zenith Product Showcase</h4>
+            <h4 className="font-semibold text-foreground text-lg">{landingData.showcase.title}</h4>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Product demo video recording placeholder. 
+              {landingData.showcase.description}
             </p>
           </div>
         </div>

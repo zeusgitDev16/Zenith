@@ -1,11 +1,13 @@
+// src/shared/components/Navbar.jsx
 import React from "react";
 import { useScrollDirection } from "@/shared/hooks/useScrollDirection";
 import { Button } from "@/shared/ui/Button/Button";
 import { handleScrollTo } from "@/shared/helper/navbarSmoothAnchor/handleScrollTo";
-
+import { navigationData } from "@/data/content/navigation.data";
+import { MobileMenu } from "@/shared/ui/MobileMenu/MobileMenu";
 
 export function Navbar() {
-  const isVisible = useScrollDirection(); // 2. Call the hook
+  const isVisible = useScrollDirection();
 
   return (
     <header
@@ -13,56 +15,47 @@ export function Navbar() {
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`} 
     >
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      {/* Added 'relative' here so the flex container acts as the anchor */}
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between relative">
         
-        {/* Left Side: Navigation Links */}
+        {/* Left Side: Navigation Links (Dynamically Mapped) */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <button 
-            type="button"
-            className="hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0" 
-            onClick={(e) => handleScrollTo(e, "features")}
-          >
-           Features
-          </button>
-          <button 
-            type="button"
-            className="hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0" 
-            onClick={(e) => handleScrollTo(e, "workflow")}
-          >
-           Workflow
-          </button>
-          <button 
-            type="button"
-            className="hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0" 
-            onClick={(e) => handleScrollTo(e, "pricing")}
-           >
-             Pricing
-           </button>
-           <button 
-             type="button"
-             className="hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0" 
-             onClick={(e) => handleScrollTo(e, "docs")}
-          >
-             Docs
-           </button>
+          {navigationData.links.map((link) => (
+            <button 
+              key={link.targetId}
+              type="button"
+              className="hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0" 
+              onClick={(e) => handleScrollTo(e, link.targetId)}
+            >
+              {link.label}
+            </button>
+          ))}
         </nav>
 
         {/* Center: Brand Logo */}
         <div className="absolute left-1/2 -translate-x-1/2">
           <a href="/" className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
-            <span>zenith</span>
+            <span>{navigationData.brand.name}</span>
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
           </a>
         </div>
 
-        {/* Right Side: Auth & Actions */}
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-            Log in
-          </Button>
-          <Button variant="default" size="sm">
-            Get Zenith
-          </Button>
+        {/* Right Side: Desktop Actions OR Mobile Menu Toggle */}
+        <div className="flex items-center gap-3 ml-auto md:ml-0">
+          {/* Desktop Right Side Container */}
+          <div className="hidden md:flex items-center gap-3">
+            <Button variant="ghost" size="sm">
+              {navigationData.actions.login}
+            </Button>
+            <Button variant="default" size="sm">
+              {navigationData.actions.getStarted}
+            </Button>
+          </div>
+
+          {/* Mobile Right Side: Menu Button */}
+          <div className="md:hidden flex items-center">
+            <MobileMenu />
+          </div>
         </div>
 
       </div>
