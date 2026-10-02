@@ -25,3 +25,11 @@ npx shadcn@latest add button
 // add shadcn sheet for menu button and slide sidebar
 
 npx shadcn@latest add sheet
+
+// installing typescript
+
+npm install -D typescript
+
+// installing Zod
+
+npm install zod

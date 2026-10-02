@@ -2,366 +2,291 @@
 
 ## 1. Purpose and end goal
 
-We will build **Taskflow**, a small project and task-management application inspired by Jira Service Management. Its purpose is not to clone Jira; it is to give every React, DOM, rendering, component-composition, CSS, and Zustand concept a practical home.
+We are building **Taskflow**, a small project and task-management app inspired by Jira Service Management. The point is not to clone Jira; it is to make React, the DOM, rendering, component composition, CSS, TypeScript, and Zustand practical.
 
-The finished application will let a user:
+The finished app will let users create projects and tasks, view a project board, edit/move/filter tasks, assign people, and persist demo data. The learning rule is: **one concept, one visible reason**. Add an abstraction only when the current implementation demonstrates a real need.
 
-- create projects;
-- create, edit, move, filter, and delete tasks;
-- view a project board and task details;
-- assign a task, set priority/status, and add comments;
-- persist local demo data; and
-- eventually replace the local repository with an API without rewriting the UI.
+## 2. The Lego-block separation-of-concerns model
 
-The learning rule is **one concept, one visible reason**. We only introduce an abstraction when the current implementation gives us a concrete reason to need it.
-
-## 2. The “Lego blocks” separation-of-concerns model
-
-Each level has one job and composes the level below it. A parent coordinates its children; it does not duplicate their internal work.
+Each level owns one kind of responsibility and composes the level below it.
 
 ```text
 App shell / route page
-  └─ Feature (project board)
-       └─ Feature section (board column)
-            └─ Domain component (task card)
-                 └─ Reusable UI primitive (card, badge, button)
-                      └─ Native DOM element (button, article, input)
+  -> Feature (project board)
+       -> Feature section (board column)
+            -> Domain component (task card)
+                 -> Generic UI primitive (badge, button, input)
+                      -> Native DOM element (article, button, form)
 ```
 
-| Lego level | Responsibility | Example | Must not do |
+| Level | Responsibility | Example | Must not do |
 | --- | --- | --- | --- |
-| Native DOM | Semantics and browser behavior | `<button>`, `<form>`, `<dialog>` | Know application state |
-| UI primitive | Reusable visual/interaction building block | `Button`, `Input`, `Modal`, `Badge` | Know what a “task” is |
-| Domain component | Render one business concept | `TaskCard`, `ProjectAvatar` | Fetch/own the whole page state |
+| Native DOM | Semantics and browser behavior | `button`, `form`, `input` | Know application data |
+| UI primitive | Generic visual/interaction building block | `Button`, `Input`, `Modal` | Know what a task is |
+| Domain component | Render one business concept | `TaskCard`, `UserAvatar` | Own the full page state |
 | Feature component | Coordinate a user capability | `TaskList`, `TaskEditor`, `BoardColumn` | Become a global component bucket |
-| Page | Arrange a screen and route-level data | `ProjectBoardPage` | Contain every small visual detail |
-| Store / repository | State transitions and data access | `taskStore`, `taskRepository` | Render JSX |
+| Page | Arrange one route/screen | `ProjectBoardPage` | Contain every visual detail |
+| Store/repository | State transitions and data access | `task.store`, `taskRepository` | Render JSX |
 
-### Component boundaries checklist
+Before creating a component, ask whether it is a meaningful UI concept, whether it has a small readable API, whether it is generic or domain-specific, what the lowest owner of its state is, and whether semantic HTML handles the need first.
 
-Before making a new component, answer these questions:
+## 3. Current codebase structure and next ownership steps
 
-1. Does it represent a meaningful UI concept or only a single wrapper? Keep trivial one-off markup in its parent.
-2. Can its parent describe it with a short API? Example: `<TaskCard task={task} onOpen={...} />`.
-3. Is it reusable outside the current feature? If yes, move it to `shared/ui`; otherwise keep it beside its feature.
-4. Who owns the state? Put state at the lowest common parent that needs it. Do not put temporary input/modal state into Zustand by default.
-5. Does it need browser semantics? Start with semantic HTML before reaching for `div` and ARIA attributes.
-
-## 3. Target file structure
-
-Start with the folders needed for the first feature. Grow into the full structure below as each milestone earns it.
+The repository is already a TypeScript Vite application. Zustand, Tailwind v4, shadcn configuration, Base UI, CVA, and Lucide are installed. The tree below reflects the files that exist now. **Scaffold** means the file is present but empty, ready to be filled when that layer is needed.
 
 ```text
 src/
+  main.tsx                         # mounts <App /> inside StrictMode
+  vite-env.d.ts
+
   app/
-    App.jsx                    # app composition and route switch (initially)
-    providers.jsx               # future global providers only
-    routes.jsx                  # introduced when React Router is added
+    App.tsx                        # current composition: Navbar + LandingPage
+    providers.tsx                  # scaffold: future app-wide providers
+    routes.tsx                     # scaffold: future routes
     styles/
-      globals.css
-      tokens.css
+      globals.css                  # Tailwind import and global styles
+      tokens.css                   # scaffold: design tokens
 
   pages/
-    DashboardPage/
-      DashboardPage.jsx
-      DashboardPage.module.css
-    ProjectBoardPage/
-      ProjectBoardPage.jsx
-      ProjectBoardPage.module.css
+    LandingPage/LandingPage.tsx    # current active page
+    DashboardPage/DashboardPage.tsx # scaffold
+    ProjectBoardPage/ProjectBoardPage.tsx # scaffold
 
   features/
-    projects/
+    landing/components/FeaturesSection.tsx
+    tasks/                         # scaffold task feature boundary
       components/
-        ProjectList.jsx
-        ProjectForm.jsx
-      hooks/
-        useProjectActions.js
-      project.store.js
-      project.selectors.js
-      project.types.js           # add when moving to TypeScript
-    tasks/
-      components/
-        TaskCard.jsx
-        TaskCard.module.css
-        TaskList.jsx
-        TaskEditor.jsx
-        TaskFilters.jsx
-        BoardColumn.jsx
-      hooks/
-        useTaskFilters.js
-      task.store.js
-      task.selectors.js
-      task.types.js
-      task.utils.js
+        TaskCard.tsx
+        TaskList.tsx
+        TaskEditor.tsx
+        TaskFilters.tsx
+        BoardColumn.tsx
+      hooks/useTaskFilters.ts
+      task.store.ts
+      task.selectors.ts
+      task.types.ts
+      task.utils.ts
+    projects/                      # scaffold project feature boundary
+      components/ProjectList.tsx
+      components/ProjectForm.tsx
+      hooks/useProjectActions.ts
+      project.store.ts
+      project.selector.ts
+      project.types.ts
 
-  entities/                     # shared domain concepts, added only when reused
-    user/
-      components/UserAvatar.jsx
-      user.types.js
+  entities/user/
+    components/UserAvatar.tsx
+    user.types.js
 
   shared/
-    ui/                         # app-wide, domain-agnostic Lego blocks
-      Button/
-        Button.jsx
-        Button.module.css
-      Input/
-        Input.jsx
-      Modal/
-        Modal.jsx
-      Badge/
-        Badge.jsx
+    ui/                            # generic, domain-agnostic UI blocks
+      Button/Button.tsx
+      Input/Input.tsx
+      Badge/Badge.tsx
+      Modal/Modal.tsx
+      Sheet/sheet.tsx
+      Navbar/Navbar.tsx
+      MobileMenu/MobileMenu.tsx
     hooks/
-      useLocalStorage.js
-    lib/
-      id.js
-      date.js
-      constants.js
+      useLandingAuth.ts            # active LandingPage UI/form state
+      useLocalStorage.ts
+      useScrollDirection.ts
+    lib/id.ts
+    lib/date.ts
+    lib/constants.ts
+    helper/navbarSmoothAnchor/handleScrollTo.ts
+    Icons/CheckIcon.tsx
 
   data/
+    content/                       # static landing-page copy/configuration
+      landing.data.ts
+      navigation.data.ts
+      features.data.ts
+    seed/initialData.ts             # scaffold
     repositories/
-      taskRepository.js         # local persistence/API boundary
-      projectRepository.js
-    seed/
-      initialData.js
+      taskRepository.ts             # scaffold
+      projectRepository.ts          # scaffold
 
-  main.jsx
+  lib/utils.ts                      # shadcn `cn` utility
+  store/useAuthStore.ts             # active global auth Zustand store
 ```
 
-### Placement rules
+Project-root conventions already in place:
 
-- `features/tasks` owns task-specific UI, task state, selectors, and task behavior.
-- `pages` composes features into a screen. It should stay thin.
-- `shared/ui` is visual and generic. `TaskCard` never belongs there because it understands a task.
-- `entities` is for a domain model shared by multiple features, such as `user`; do not create it pre-emptively.
-- `data/repositories` hides whether data is mock, `localStorage`, or an HTTP API.
-- Keep a component’s CSS, test, and story next to that component when they exist.
-- Avoid a catch-all `components/`, `utils/`, or `stores/` folder at the app root. They obscure ownership as the app grows.
+- `tsconfig.json` enables strict TypeScript and maps `@/*` to `src/*`.
+- `components.json` maps shadcn aliases to `shared/ui`, `shared/lib`, and `shared/hooks`.
+- Styling is Tailwind-first, not CSS-module-first.
+
+### What to keep, fill, and move
+
+| Current area | Current role | Next action |
+| --- | --- | --- |
+| `app/App.tsx` | Landing screen composition | Keep thin. Use `app/routes.tsx` when at least two real pages can be navigated to. |
+| `pages/LandingPage` + `features/landing` | Active landing/sign-in experience | Keep temporary form state in `useLandingAuth`; extract only repeated landing sections. |
+| `shared/ui` | Generic visual building blocks | Reuse `Button`, `Input`, `Modal`, `Sheet`, and `Badge`; never put `TaskCard` here. |
+| `features/tasks` | Empty task feature boundary | Fill next: types -> seed data -> store/selectors -> components. |
+| `features/projects` | Empty project feature boundary | Fill after task types establish the `projectId` relationship. |
+| `data/content` | Static display copy | Keep it for copy/configuration, not user-mutable task data. |
+| `data/seed` and `data/repositories` | Empty data boundary | Start with seeded in-memory data; add `localStorage` after the in-memory flow works. |
+| `store/useAuthStore.ts` | Global auth state outside a feature | Keep it while learning. If auth grows, move it intact to `features/auth/auth.store.ts`; never create a duplicate store. |
+| `entities/user/user.types.js` | Shared user model | Rename to `user.types.ts` when next edited, to make domain types consistently TypeScript. |
+
+### Placement rules for this repository
+
+- New task code belongs in the existing `features/tasks` scaffold; project code belongs in `features/projects`.
+- A page composes features. `ProjectBoardPage` coordinates the page; `TaskCard` remains task-owned.
+- `shared/ui` is domain-free. A component importing `Task`, `Project`, or a task status is not shared UI.
+- Follow the existing Tailwind/global-token approach. Do not add CSS modules just because another architecture uses them.
+- Keep `project.selector.ts` for now, or rename it to `project.selectors.ts` only in a deliberate cleanup that updates all imports.
+- Do not fill all scaffolds at once. A file earns its implementation when its immediately preceding layer needs it.
 
 ## 4. State architecture: choose the right home
 
 ```text
-Server / durable data       repository → Zustand store → feature UI
-Shared client UI state      Zustand store → relevant feature UI
-Page-local UI state         page component → child components via props
-Ephemeral component state   component useState/useReducer
-Derived values              selector or pure function; never duplicated state
+Durable/demo data          repository -> Zustand feature store -> feature UI
+Shared client/UI state     Zustand store -> relevant feature UI
+Page-local UI state        page component -> child props/callbacks
+Ephemeral component state  useState/useReducer in the component
+Derived values             selector or pure function; never duplicated state
 ```
 
-Examples:
-
-| State | Correct home | Why |
+| State | Best home | Why |
 | --- | --- | --- |
-| `tasks` and `projects` | Zustand | Multiple features/pages read and update them |
-| currently selected project ID | Zustand or URL | It is shared; use URL once routing/deep links matter |
-| task-form input values | `useState`/`useReducer` in `TaskEditor` | It is transient and only the form needs it |
-| whether one card’s menu is open | `useState` in that card | Global state would add needless coupling |
-| filtered task list | selector/pure function | It can be calculated from tasks + filters |
-| theme preference | small UI Zustand store + persistence | It is app-wide and durable |
+| Tasks and projects | Zustand feature stores | Several components/pages will read and update them |
+| Authentication | Existing `useAuthStore` | It is global and already implemented |
+| Landing email, invite code, selected role tab | `useLandingAuth` | Temporary state used only by the landing screen |
+| One card's open menu | `useState` in that card | Global state would add coupling |
+| Filtered task list and column counts | Selector/pure function | They are calculated from canonical tasks/filters |
+| Selected project ID | URL once routes exist | It enables refresh and deep links |
 
 ### Zustand rules
 
-1. Prefer **small feature stores**, not one giant `useAppStore`.
-2. Store data and intentional actions together: `createTask`, `updateTask`, `moveTask`, `deleteTask`.
-3. Components should select the smallest value they need, rather than subscribing to an entire store.
-4. Build derived data with selectors. Never save `completedTaskCount` if it can be calculated from `tasks`.
-5. Do not put JSX, DOM nodes, event objects, promises, or local form state in a store.
-6. Keep `set` calls inside store actions; components request an action rather than manually mutating state shape.
-7. Use immutable updates. Existing objects/arrays are replaced, never changed in place.
-8. Add `persist` only after the in-memory version works; persist only the serializable fields that should survive reload.
-9. Use the `devtools` middleware during learning to inspect each named action.
+1. Prefer small feature stores over one `useAppStore`.
+2. Keep state and intentional actions together: `createTask`, `updateTask`, `moveTask`, `deleteTask`.
+3. Subscribe to the smallest selected value needed by a component.
+4. Derive filtered lists/counts from source state. Never store duplicates.
+5. Do not store JSX, DOM nodes, event objects, or local form drafts.
+6. Keep `set` calls in named store actions; components request transitions.
+7. Use immutable array/object updates.
+8. Add persistence only after in-memory behavior is correct.
 
-Illustrative store shape:
+## 5. Learning milestones and build order from today
 
-```js
-// features/tasks/task.store.js
-import { create } from 'zustand'
+### Completed foundation - Vite, TypeScript, Tailwind, and landing composition
 
-export const useTaskStore = create((set) => ({
-  tasks: [],
-  createTask: (draft) => set((state) => ({
-    tasks: [...state.tasks, { id: crypto.randomUUID(), status: 'todo', ...draft }],
-  }), false, 'tasks/create'),
-  moveTask: (taskId, status) => set((state) => ({
-    tasks: state.tasks.map((task) =>
-      task.id === taskId ? { ...task, status } : task,
-    ),
-  }), false, 'tasks/move'),
-}))
-```
+**Current evidence:** `main.tsx` mounts `App` in `StrictMode`; `App` composes `Navbar` and `LandingPage`; static content is separated into `data/content`; local form/tab state is in `useLandingAuth`; the auth store exists.
 
-The component reads only what it needs:
+**Practice now:** Inspect the LandingPage DOM in DevTools. Identify which state update re-renders the role panels, inputs, and button handlers. Notice that `useLandingAuth` is deliberately local rather than global.
 
-```js
-const moveTask = useTaskStore((state) => state.moveTask)
-```
+### Next slice - model the task domain before rendering it
 
-Use a selector for a column’s tasks:
+**Build:** Fill `task.types.ts`, `project.types.ts`, and `data/seed/initialData.ts` with a small typed set of projects and tasks.
 
-```js
-export const selectTasksByProjectAndStatus = (projectId, status) => (state) =>
-  state.tasks.filter((task) => task.projectId === projectId && task.status === status)
-```
+**Learn:** Type aliases/interfaces, unions for `TaskStatus` and priority, relationships through `projectId`, arrays, and stable IDs.
 
-## 5. Learning milestones and build order
+**Done when:** Seed tasks type-check and each has a valid project ID, status, priority, title, and ID.
 
-### Phase 0 — Foundation: the browser, Vite, and React entry point
+### Task state slice - make the existing Zustand scaffold real
 
-**Build:** Replace the Vite demo with one static Taskflow screen.
+**Build:** Implement `task.store.ts`, `project.store.ts`, and selectors. Initialize them from seed data. Keep the editor's draft local later.
 
-**Learn:** `index.html`, the root DOM node, `main.jsx`, `createRoot`, JSX compilation, JSX versus HTML attributes, CSS imports, and Vite HMR.
+**Learn:** `create`, typed store actions, immutable updates, narrow selectors, and derived state.
 
-**Practice:** Inspect Elements in browser DevTools. Change markup, then identify the matching DOM nodes. Use semantic landmarks: `header`, `nav`, `main`, `aside`, `section`, and `footer`.
+**Done when:** Moving one task changes canonical task state; columns and counts derive from it.
 
-**Done when:** You can explain how `main.jsx` turns `<App />` into browser DOM.
+### Board composition slice - fill feature components bottom-up
 
-### Phase 1 — Static composition and component contracts
+**Build in this exact order:** `TaskCard` -> `BoardColumn` -> `TaskList` -> `ProjectBoardPage`.
 
-**Build:** A static dashboard with `AppShell`, `Sidebar`, `TopBar`, `ProjectList`, `TaskBoard`, `BoardColumn`, and `TaskCard`.
+**Learn:** props, callback contracts, `.map`, stable keys, parent-child data flow, conditional rendering, semantic `article`/`button`/`section` choices, and empty states.
 
-**Learn:** imports/exports, props, children, arrays of data, `map`, list `key`, one-way data flow, and semantic component boundaries.
+**Done when:** `ProjectBoardPage` is a thin composer and task components do not import the project page.
 
-**Exercise:** Start with all markup in `App`, then extract in this order: `TaskCard` → `BoardColumn` → `TaskBoard` → shell. Write each component API before extracting it.
+### Form slice - create and edit tasks
 
-**Done when:** `TaskBoard` can render a supplied `tasks` array and has no hard-coded task text.
+**Build:** Fill `TaskEditor.tsx`; render it in the existing `Modal` or `Sheet` primitive.
 
-### Phase 2 — Local interaction and React rendering
+**Learn:** controlled forms, `onSubmit`, `preventDefault`, validation, labels, focus, local `useState` versus Zustand state, and callback ownership.
 
-**Build:** Add task creation, a task details panel, status filtering, and empty states.
+**Done when:** A form draft is local and only successful submission calls the task-store action.
 
-**Learn:** `useState`, controlled inputs, `onSubmit`, `preventDefault`, lifting state, conditional rendering, event bubbling, render snapshots, batching, and immutability.
+### Project/navigation/persistence slice
 
-**Exercise:** Explain why `setTasks([...tasks, task])` causes a re-render but `tasks.push(task)` does not give React a new array reference.
+**Build:** Fill `ProjectList`, `ProjectForm`, and `DashboardPage`; then add routes to the dashboard and `/projects/:projectId`. Finally fill repositories with local persistence and add loading/error states.
 
-**Done when:** Local state lives in the lowest common component, and a child asks for changes through callbacks instead of mutating props.
+**Done when:** Refreshing a project URL keeps the user on the same board, and replacing `localStorage` with an API changes repository/store code rather than task UI.
 
-### Phase 3 — Forms, accessibility, and browser behavior
-
-**Build:** `TaskEditor` for create/edit, validation messages, accessible modal/drawer, and keyboard-close behavior.
-
-**Learn:** `label` + `htmlFor`, input name/value, focus management, forms vs buttons, native validation, ARIA only where native HTML is insufficient, dialogs, CSS focus states, and portal motivation.
-
-**Exercise:** Navigate the entire form with a keyboard and test it with the browser accessibility tree.
-
-**Done when:** Every input has a label, errors are announced appropriately, and the modal’s focus behavior is intentional.
-
-### Phase 4 — Introduce Zustand for shared task state
-
-**Build:** Move tasks/projects from the page into `task.store.js` and `project.store.js`; keep the editor’s draft local.
-
-**Learn:** `create`, selectors, actions, subscriptions, immutable transitions, store slices by feature, and why Zustand does not replace component state.
-
-**Exercise:** First make the store too broad (`const store = useTaskStore()`), observe re-renders with React DevTools, then replace it with narrow selectors.
-
-**Done when:** Multiple components update/read tasks without prop drilling, while temporary UI state remains local.
-
-### Phase 5 — Derived state, selectors, and rendering performance
-
-**Build:** Project-based filtering, task counts per column, search, sorted tasks, and memoized expensive computations only where measured as useful.
-
-**Learn:** source versus derived state, selector design, referential equality, `useMemo`, `useCallback`, `React.memo`, and avoiding premature optimization.
-
-**Exercise:** Deliberately store a derived count, observe it become stale, then remove it and calculate it from the source tasks.
-
-**Done when:** A task update only re-renders UI that subscribed to changed data, as verified in React DevTools’ profiler.
-
-### Phase 6 — Navigation and page composition
-
-**Build:** Dashboard and project board pages; introduce React Router when there are at least two screens. Place the selected project in the URL.
-
-**Learn:** routes, params, nested layouts, links vs buttons, loading/not-found states, URL state, and page-level composition.
-
-**Done when:** Refreshing `/projects/:projectId` opens the same project and the page remains a thin composer.
-
-### Phase 7 — Persistence and data boundary
-
-**Build:** A repository backed by `localStorage`, seed data, loading/error states, and Zustand persistence where appropriate.
-
-**Learn:** serialization, hydration, async actions, repository pattern, data migration, error handling, and the separation of server state from UI state.
-
-**Done when:** Replacing `localStorage` with `fetch` requires changing the repository, not `TaskCard` or `TaskBoard`.
-
-### Phase 8 — System hardening
-
-**Build:** Design tokens, reusable primitives, dark mode, tests, error boundaries, optimistic update discussion, and an optional mock API.
-
-**Learn:** CSS custom properties, responsive layout, test pyramid, unit/component/integration tests, stable IDs, linting, formatting, and production build inspection.
-
-**Done when:** The app is explainable: every file has clear ownership, every state value has a justified home, and core user flows are tested.
-
-## 6. How a large component is built safely
-
-Build `ProjectBoardPage` using this progression:
+## 6. How the future ProjectBoardPage should nest components
 
 ```text
 ProjectBoardPage
-  ├─ ProjectHeader
-  │   ├─ Breadcrumbs
-  │   └─ ProjectActions
-  ├─ BoardToolbar
-  │   ├─ SearchInput
-  │   └─ TaskFilters
-  └─ TaskBoard
-      └─ BoardColumn (repeated for each status)
-          ├─ ColumnHeader
-          ├─ TaskCard (repeated for each task)
-          │   ├─ PriorityBadge
-          │   └─ UserAvatar
-          └─ AddTaskButton
+  -> ProjectHeader
+  -> BoardToolbar
+       -> TaskFilters
+       -> Button (open TaskEditor)
+  -> TaskList
+       -> BoardColumn (one per status)
+            -> TaskCard (one per task)
+                 -> Badge
+                 -> UserAvatar
+  -> Modal or Sheet
+       -> TaskEditor
 ```
 
-1. Implement it once as static markup.
-2. Replace repeated markup with data + `.map`; give each sibling a stable ID-based `key`, never an array index for mutable task lists.
-3. Extract the smallest repeated or conceptually independent unit (`TaskCard`).
-4. Give the extracted unit data props and event callbacks; never let it reach upward into its parent’s local state.
-5. Extract the repeated container (`BoardColumn`).
-6. Add behavior locally first. Lift only state truly shared by siblings.
-7. Move cross-feature state to Zustand only after it crosses the component tree or page boundary.
-8. Test the smallest blocks, then the feature composition, then the whole flow.
+Build it safely:
+
+1. Start with typed seed data, not hard-coded JSX task text.
+2. Render repeated data with `.map` and stable ID keys, never indexes for mutable task lists.
+3. Implement the smallest domain block, `TaskCard`, before its container.
+4. Give children data props and callbacks. A child never mutates a parent prop.
+5. Extract the repeated container, `BoardColumn`, then let `TaskList` coordinate its repeated columns.
+6. Put cross-column task transitions in the task store, but keep modal-open and form-draft state local until genuinely shared.
+7. Test a block, then feature composition, then the full task-creation/move flow.
 
 ## 7. Naming and API conventions
 
-- Use `PascalCase` for React components and component folders: `TaskCard/TaskCard.jsx`.
-- Use `camelCase` for hooks, utilities, selectors, and actions: `useTaskStore`, `formatDate`, `selectTaskById`.
-- Name handlers by intent: `handleSubmit`, `handleClose`, `onTaskOpen`, not `clickHandler`.
+- Use `PascalCase` for components and folders: `TaskCard/TaskCard.tsx`.
+- Use `camelCase` for hooks, utilities, selectors, and store actions: `useTaskStore`, `formatDate`, `selectTaskById`.
+- Name handlers by intent: `handleSubmit`, `handleClose`, `onTaskOpen`.
 - Components receive nouns/data and callbacks: `task`, `projectId`, `onSave`; stores expose verbs: `createTask`, `archiveProject`.
-- Prefer explicit props over “magic” context. Use context for stable cross-tree dependencies such as theme or router, not as a replacement for all props.
-- Keep one primary exported component per component file. Co-locate private helper components when they are genuinely private.
+- Prefer explicit props over context. Context is suitable for stable cross-tree dependencies, not as a replacement for every prop.
 
-## 8. Deliberate anti-patterns to recognize
+## 8. Anti-patterns to recognize
 
 | Avoid | Better direction |
 | --- | --- |
-| A mega `App.jsx` | Extract by responsibility as repetition/complexity appears |
-| One global store for everything | Feature stores and local state |
-| Copying props into state | Derive it, or make a deliberate editable draft |
-| Storing filtered lists/counts | Derive from canonical state with selectors |
-| Index keys in reorderable task lists | Stable task IDs |
-| `div` buttons and clickable cards without keyboard handling | Native buttons/links and semantic structure |
-| Reusable component with dozens of boolean props | Compose smaller primitives or use focused variants |
-| `useMemo`/`React.memo` everywhere | Measure first; keep render logic simple |
-| Direct `localStorage` calls in UI components | Repository or persistence boundary |
-| CSS files that style unrelated features | Co-located styles plus global tokens/reset only |
+| A mega `App.tsx` | Keep it as thin application composition |
+| A task component in `shared/ui` | Keep it under `features/tasks` |
+| One global store for all state | Feature stores plus local state |
+| Copying props into state | Derive it, or create an explicit editable draft |
+| Storing filtered lists/counts | Derive with selectors |
+| Index keys for tasks | Stable task IDs |
+| Clickable `div` elements | Native buttons/links and semantic structure |
+| Direct persistence calls in UI components | Repository boundary |
+| Filling empty architectural files before need | Implement in dependency order |
 
 ## 9. Definition of done for every increment
 
-- The new behavior works at narrow and mobile widths.
-- Keyboard interaction and focus make sense.
-- State has one source of truth and is immutable.
-- The component’s input/output contract is understandable from its props.
-- No domain component is placed in `shared/ui`.
-- No duplicated derived state was added.
-- Empty, loading, and error states are considered when data is asynchronous.
-- `npm run lint` and `npm run build` pass before considering the increment complete.
+- The behavior works at narrow and wide widths.
+- Keyboard interaction and focus behavior are intentional.
+- Each state value has one source of truth and is immutable.
+- The component contract is understandable from its props.
+- Domain components stay out of `shared/ui`.
+- No duplicated derived state is added.
+- Empty, loading, and error states are considered for asynchronous work.
+- `npm run lint` and `npm run build` pass.
 
-## 10. First implementation slice
+## 10. Immediate implementation checklist
 
-Do this before installing Zustand or a router:
+Do not reinstall Zustand or create a second Vite/React structure: both the dependency and the intended task/project scaffolds already exist.
 
-1. Replace the Vite demo in `App.jsx` with static Taskflow markup.
-2. Create `features/tasks/components/TaskCard.jsx` and render it from a hard-coded task array.
-3. Extract `BoardColumn`, then `TaskBoard`.
-4. Add a small `shared/ui/Button` only after two parts of the screen need the same button behavior/style.
-5. Add a controlled “Create task” form with `useState` in the closest suitable parent.
-6. Only then install Zustand and migrate the shared task collection into `features/tasks/task.store.js`.
+1. Define task and project types in the existing `features/*/*.types.ts` files.
+2. Add a minimal typed project/task fixture to `data/seed/initialData.ts`.
+3. Implement `task.store.ts` with read, create, update, move, and delete actions.
+4. Add task selectors in `task.selectors.ts`; keep filtering/counts derived.
+5. Build `TaskCard`, `BoardColumn`, then `TaskList` from the existing task components.
+6. Compose them in `ProjectBoardPage` using existing generic UI primitives.
+7. Add `TaskEditor` with local draft state and submit to the task store.
+8. Only after this flow works, fill the project store/dashboard and introduce routes.
 
-At each step, pause to inspect the DOM and React DevTools. The goal is to understand what React renders and why, not merely to make the screen look complete.
+At every step, inspect the browser DOM and React DevTools. The goal is to understand why React rendered something, not only to make the screen appear complete.
