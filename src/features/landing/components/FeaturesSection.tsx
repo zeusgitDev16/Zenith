@@ -4,15 +4,15 @@ import { featuresData } from "@/data/content/features.data";
 
 export function FeaturesSection(): React.JSX.Element {
   return (
-    <section className="py-24 px-6 bg-muted/30 border-t border-border/40 scroll-mt-24">
+    <section id="features" className="py-24 px-6 border-t border-border/40 mt-24 scroll-mt-24">
       <div className="max-w-7xl mx-auto flex flex-col gap-12">
         
         {/* Section Header */}
         <div className="flex flex-col items-center text-center gap-4 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--badgeBG-accent)]/10 text-[var(--landhighlight-accent)] text-xs font-medium uppercase tracking-wider border border-emerald-500/20">
             {featuresData.badge}
           </div>
-          <h2 id="features" className="text-3xl lg:text-4xl font-extrabold tracking-tight">
+          <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">
             {featuresData.headingParts.part1}
             <span className="text-primary">{featuresData.headingParts.highlight}</span>
           </h2>

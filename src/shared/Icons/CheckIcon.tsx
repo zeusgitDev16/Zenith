@@ -5,7 +5,7 @@ interface CheckIconProps {
   className?: string;
 }
 
-export function CheckIcon({ className = "w-5 h-5 text-emerald-500" }: CheckIconProps): React.JSX.Element {
+export function CheckIcon({ className = "w-5 h-5 text-[var(--landhighlight-accent)]" }: CheckIconProps): React.JSX.Element {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

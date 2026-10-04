@@ -4,7 +4,7 @@ import { useScrollDirection } from "@/shared/hooks/useScrollDirection";
 import { Button } from "@/shared/ui/Button/Button";
 import { handleScrollTo } from "@/shared/helper/navbarSmoothAnchor/handleScrollTo";
 import { navigationData } from "@/data/content/navigation.data";
-import { MobileMenu } from "@/shared/ui/MobileMenu/MobileMenu";
+import { MobileMenu } from "@/shared/ui/Mobile/MobileMenu";
 
 export function Navbar(): React.JSX.Element {
   const isVisible = useScrollDirection();

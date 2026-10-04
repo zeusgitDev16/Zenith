@@ -5,6 +5,9 @@ import { useLandingAuth } from "@/shared/hooks/useLandingAuth";
 import { FeaturesSection } from "@/features/landing/components/FeaturesSection";
 import { landingData } from "@/data/content/landing.data";
 import { Input } from "@/shared/ui/Input/Input";
+import { WorkflowSection } from "@/features/landing/components/WorkflowSection";
+import { PricingSection } from "@/features/landing/components/PricingSection";
+import { Footer } from "@/features/landing/components/Footer";
 
 export function LandingPage(): React.JSX.Element {
   const {
@@ -64,7 +67,7 @@ export function LandingPage(): React.JSX.Element {
             >
               <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
                 {landingData.client.headingParts.part1}
-                <span className="text-[#800020]">{landingData.client.headingParts.highlight}</span>
+                <span className="text-landhighlight-accent">{landingData.client.headingParts.highlight}</span>
                 {landingData.client.headingParts.part2}
               </h1>
               <p className="text-muted-foreground text-lg">
@@ -106,7 +109,7 @@ export function LandingPage(): React.JSX.Element {
             >
               <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
                 {landingData.manager.headingParts.part1}
-                <span className="text-[#800020]">{landingData.manager.headingParts.highlight}</span>
+                <span className="text-landhighlight-accent">{landingData.manager.headingParts.highlight}</span>
                 {landingData.manager.headingParts.part2}
               </h1>
               <p className="text-muted-foreground text-lg">
@@ -161,6 +164,12 @@ export function LandingPage(): React.JSX.Element {
 
       {/* FEATURES SECTION (Smooth scroll target) */}
       <FeaturesSection />
+      {/* WORKFLOW SECTION (Smooth scroll target) */}
+      <WorkflowSection />
+      {/* PRICING SECTION (Smooth scroll target) */}
+      <PricingSection />
+      {/* FOOTER SECTION (Smooth scroll target) */}
+      <Footer />
     </div>
   );
 }

@@ -50,7 +50,7 @@ export interface LandingData {
 export const landingData: LandingData = {
   // Navigation / Role Switcher Tabs
   tabs: {
-    client: "Join Team",
+    client: "Join Teams",
     manager: "Account Center",
   },
 
@@ -61,11 +61,11 @@ export const landingData: LandingData = {
       highlight: "track",
       part2: " progress effortlessly.",
     },
-    description: "Submit tasks, monitor live updates, and collaborate directly with project managers through your secure client invitation access.",
-    portalTitle: "Client Access Portal",
+    description: "Submit tasks, monitor live updates, and collaborate directly with project managers through your secure teams invitation access.",
+    portalTitle: "Teams Access Portal",
     emailPlaceholder: "Enter your Gmail address",
     invitePlaceholder: "Enter invitation code",
-    submitButtonText: "Sign In to Portal",
+    submitButtonText: "Sign In",
   },
 
   // Manager View Content

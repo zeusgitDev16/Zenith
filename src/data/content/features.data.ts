@@ -1,5 +1,3 @@
-// src/data/content/features.data.js
-
 // src/data/content/features.data.ts
 
 export interface HeadingParts {
