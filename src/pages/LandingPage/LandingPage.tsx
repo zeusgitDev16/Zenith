@@ -1,5 +1,5 @@
 // src/pages/LandingPage/LandingPage.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/shared/ui/Button/Button";
 import { useLandingAuth } from "@/shared/hooks/useLandingAuth";
 import { FeaturesSection } from "@/features/landing/components/FeaturesSection";
@@ -8,6 +8,7 @@ import { Input } from "@/shared/ui/Input/Input";
 import { WorkflowSection } from "@/features/landing/components/WorkflowSection";
 import { PricingSection } from "@/features/landing/components/PricingSection";
 import { Footer } from "@/features/landing/components/Footer";
+import { AccountTypeModal } from "@/features/auth/components/AccountTypeModal";
 
 export function LandingPage(): React.JSX.Element {
   const {
@@ -20,6 +21,8 @@ export function LandingPage(): React.JSX.Element {
     handleClientSignIn,
     handleManagerAction,
   } = useLandingAuth();
+
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   return (
     <div id="top" className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 pt-24 pb-12">
@@ -124,7 +127,7 @@ export function LandingPage(): React.JSX.Element {
                 </p>
                 <div className="flex flex-col gap-3 mt-1">
                   <Button 
-                    onClick={() => handleManagerAction(true)} 
+                    onClick={() => setIsRegisterModalOpen(true)} 
                     variant="default" 
                     size="lg" 
                     className="w-full"
@@ -170,6 +173,11 @@ export function LandingPage(): React.JSX.Element {
       <PricingSection />
       {/* FOOTER SECTION (Smooth scroll target) */}
       <Footer />
+      {/* ACCOUNT TYPE REGISTRATION MODAL */}
+      <AccountTypeModal 
+        isOpen={isRegisterModalOpen} 
+        onClose={() => setIsRegisterModalOpen(false)} 
+      />
     </div>
   );
 }

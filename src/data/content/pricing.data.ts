@@ -37,7 +37,7 @@ export const pricingData: PricingData = {
   categories: [
     {
       id: "business",
-      label: "Businesses & Team",
+      label: "Business",
       plans: [
         {
           name: "Free",
@@ -107,7 +107,7 @@ export const pricingData: PricingData = {
     },
     {
       id: "individuals",
-      label: "Individuals",
+      label: "Individual",
       plans: [
         {
           name: "Solo Starter",

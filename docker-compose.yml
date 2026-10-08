@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zenith_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: zenith_admin
+      POSTGRES_PASSWORD: Zen1thCor3#23!$@!
+      POSTGRES_DB: zenith_core
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
