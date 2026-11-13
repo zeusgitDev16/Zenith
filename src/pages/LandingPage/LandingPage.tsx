@@ -9,6 +9,7 @@ import { WorkflowSection } from "@/features/landing/components/WorkflowSection";
 import { PricingSection } from "@/features/landing/components/PricingSection";
 import { Footer } from "@/features/landing/components/Footer";
 import { AccountTypeModal } from "@/features/auth/components/AccountTypeModal";
+import { SignInExistModal } from "@/features/auth/components/SignInExistModal";
 
 export function LandingPage(): React.JSX.Element {
   const {
@@ -23,6 +24,7 @@ export function LandingPage(): React.JSX.Element {
   } = useLandingAuth();
 
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isSignInExistModalOpen, setIsSignInExistModalOpen] = useState(false);
 
   return (
     <div id="top" className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 pt-24 pb-12">
@@ -135,7 +137,7 @@ export function LandingPage(): React.JSX.Element {
                     {landingData.manager.createButtonText}
                   </Button>
                   <Button 
-                    onClick={() => handleManagerAction(false)} 
+                    onClick={() => setIsSignInExistModalOpen(true)} 
                     variant="outline" 
                     size="lg" 
                     className="w-full"
@@ -177,6 +179,10 @@ export function LandingPage(): React.JSX.Element {
       <AccountTypeModal 
         isOpen={isRegisterModalOpen} 
         onClose={() => setIsRegisterModalOpen(false)} 
+      />
+      <SignInExistModal
+        isOpen={isSignInExistModalOpen}
+        onClose={() => setIsSignInExistModalOpen(false)}
       />
     </div>
   );
